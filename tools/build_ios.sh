@@ -2,7 +2,7 @@
 # Configure, build and sign for iOS (arm64 devices) on a Mac with Xcode, like build_macos.sh.
 #   tools/build_ios.sh --profile <app.mobileprovision> --identity "<Apple Development: ...>"
 #       [--disc <game.rvz|.iso|main.dol>] [--bundle-id <id>] [--host-recomp <r2recomp>]
-#       [--build-dir <dir>] [--configure] [--icon <png>] [--ipa] [--install <device>]
+#       [--build-dir <dir>] [--configure] [--icon <png>] [--font <ttf>] [--ipa] [--install <device>]
 # Result: build/ios/Red Two.app (Dawn and SDL3 linked in statically); --ipa also packs
 # build/RedTwo-ios-arm64.ipa, --install puts the app on a connected device (xcrun devicectl).
 # Needs: Xcode with the iOS SDK, cmake (3.25+), ninja, and a provisioning profile whose App ID
@@ -21,6 +21,7 @@ bundle_id=""
 host_recomp=""
 ipa=0
 icon=""
+font=""
 device=""
 deployment="16.0"
 cmake_args=()
@@ -35,6 +36,7 @@ while [ $# -gt 0 ]; do
     --bundle-id) bundle_id="$2"; configure=1; shift 2 ;;
     --host-recomp) host_recomp="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"; shift 2 ;;
     --icon) icon="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"; shift 2 ;;
+    --font) font="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"; shift 2 ;;
     --ipa) ipa=1; shift ;;
     --install) device="$2"; shift 2 ;;
     -D*) cmake_args+=("$1"); shift ;;
@@ -128,6 +130,15 @@ app="$build/Red Two.app"
 # the starter shader list (tools/make_shader_seed.py): Aurora reads it from the app's folder
 if [ -f "$root/build/initial_pipeline_cache.db" ]; then
     cp "$root/build/initial_pipeline_cache.db" "$app/"
+fi
+# the menu's font: --font, else your own res/font.ttf, else the Mac's Arial Narrow
+if [ -z "$font" ]; then
+    for f in "$root/res/font.ttf" "/System/Library/Fonts/Supplemental/Arial Narrow.ttf"; do
+        if [ -f "$f" ]; then font="$f"; break; fi
+    done
+fi
+if [ -n "$font" ] && [ -f "$font" ]; then
+    cp "$font" "$app/font.ttf"
 fi
 # the app icon: --icon, else your own res/icon.png, else Red Two's own res/red_two.png
 if [ -z "$icon" ]; then
