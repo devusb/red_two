@@ -34,6 +34,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cfloat>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -2960,6 +2961,33 @@ void menuEvent(const void* p) {
         settings::get().vsync && !cinematicSkip()) {
         logf("gfx", "display now %d Hz", displayRefreshHz());
         viSetRateHz(frameRateHz());
+    }
+    // a finger is the mouse while the menu shows: a tap clicks, a drag scrolls
+    if ((s_open || s_launcher) && ImGui::GetCurrentContext() &&
+        (e.type == SDL_EVENT_FINGER_DOWN || e.type == SDL_EVENT_FINGER_MOTION || e.type == SDL_EVENT_FINGER_UP ||
+         e.type == SDL_EVENT_FINGER_CANCELED)) {
+        static SDL_FingerID finger = 0;
+        static bool down = false;
+        ImGuiIO& io = ImGui::GetIO();
+        const SDL_TouchFingerEvent& t = e.tfinger;
+        if (e.type == SDL_EVENT_FINGER_DOWN && !down) {
+            down = true;
+            finger = t.fingerID;
+            io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
+            io.AddMousePosEvent(t.x * io.DisplaySize.x, t.y * io.DisplaySize.y);
+            io.AddMouseButtonEvent(ImGuiMouseButton_Left, true);
+        } else if (down && t.fingerID == finger) {
+            io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
+            if (e.type == SDL_EVENT_FINGER_MOTION) {
+                io.AddMousePosEvent(t.x * io.DisplaySize.x, t.y * io.DisplaySize.y);
+                if (const float line = 5.f * ImGui::GetFontSize(); line > 0.f) io.AddMouseWheelEvent(0.f, t.dy * io.DisplaySize.y / line);
+            } else {
+                down = false;
+                io.AddMouseButtonEvent(ImGuiMouseButton_Left, false);
+                io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
+            }
+        }
+        return;
     }
     if (rebindingNow()) return;  // rebinding takes these
     if (s_launcher) {  // no opening or closing: Esc only leaves the folder browser / the disc page
