@@ -1,4 +1,4 @@
-// On-screen touch controls, for phones without a controller (Android; R2_TOUCH=1 shows them
+// On-screen touch controls, for phones without a controller (Android, iOS; R2_TOUCH=1 shows them
 // anywhere, for screenshots): a stick that starts where the left thumb lands, a C-stick that
 // starts where the right thumb lands, the GameCube's A / B / X / Y / Z / START, L and R as bars
 // (the higher the finger, the more of the analog trigger; the top is the click), the d-pad
@@ -80,7 +80,7 @@ struct Finger {
     float cx, cy;    // a stick: where its middle is (where the thumb landed)
 };
 
-#ifdef __ANDROID__
+#if defined(__ANDROID__) || defined(R2_IOS)
 constexpr bool kPlatform = true;
 #else
 constexpr bool kPlatform = false;

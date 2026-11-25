@@ -187,7 +187,7 @@ void set(int item, bool on);  // applied at the game's next frame
 namespace gfx {
 bool menuOpen();  // gfx/menu.cpp: the settings menu has the controls (the game sees idle pads)
 bool launcherShowing();  // gfx/menu.cpp: the launcher is up (the game has not started)
-// gfx/touch.cpp: on-screen touch controls (Android): every SDL event, drawn inside a frame,
+// gfx/touch.cpp: on-screen touch controls (Android, iOS): every SDL event, drawn inside a frame,
 // merged into port 1's PADStatus (false: not in use)
 void touchEvent(const void* sdlEvent);
 void touchDraw();

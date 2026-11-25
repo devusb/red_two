@@ -29,6 +29,7 @@
 #include <cstdint>
 #ifdef R2_IOS
 // iOS: SDL starts the app and calls SDL_main (main below, renamed)
+#include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_main.h>
 #endif
 static long gettid() {  // (macOS has no gettid: the thread's system-wide id)
@@ -1153,6 +1154,8 @@ int main(int argc, char** argv) {
 #ifdef R2_IOS
     // relative paths (saves/, R2_* dumps) land in the app's Documents folder
     if (const std::string u = mods::userDir(); !u.empty()) chdir(u.c_str());
+    // a swipe from the screen's edge needs a second one to reach the system
+    SDL_SetHint(SDL_HINT_IOS_HIDE_HOME_INDICATOR, "2");
 #endif
     setupLogOutput(argc, argv);
     std::string disc;
