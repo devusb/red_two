@@ -294,8 +294,19 @@ bool memInit() {
     char name[64];
     snprintf(name, sizeof name, "/red_two_mem1.%d", int(getpid()));
     s_mem1 = shm_open(name, O_RDWR | O_CREAT | O_EXCL, 0600);
+#ifdef R2_IOS
+    if (s_mem1 < 0) {
+        // iOS: a file in the app's temporary folder, unlinked at once
+        const char* tmp = getenv("TMPDIR");
+        std::string path = std::string(tmp && *tmp ? tmp : "/tmp") + "/red_two_mem1.XXXXXX";
+        s_mem1 = mkstemp(path.data());
+        if (s_mem1 < 0) return false;
+        unlink(path.c_str());
+        name[0] = 0;
+    }
+#endif
     if (s_mem1 < 0) return false;
-    shm_unlink(name);  // (the descriptor keeps it)
+    if (name[0]) shm_unlink(name);  // (the descriptor keeps it)
     if (ftruncate(s_mem1, kMem1Mapped) != 0) return false;
 #else
     s_mem1 = memfd_create("red_two_mem1", 0);

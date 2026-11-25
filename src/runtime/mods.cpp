@@ -325,6 +325,14 @@ std::string userDir() {
             return d;
         }
 #endif
+#ifdef R2_IOS
+        // iOS: the app's Documents folder, which the Files app and a Mac's Finder show, so the
+        // disc image, texture packs, codes, saves and logs can be put there and taken out
+        if (const char* home = getenv("HOME"); home && *home) {
+            d = std::string(home) + "/Documents/";
+            return d;
+        }
+#endif
         if (char* p = SDL_GetPrefPath(nullptr, "Red Two")) {
             d = p;
             SDL_free(p);

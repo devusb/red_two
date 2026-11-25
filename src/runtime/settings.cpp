@@ -182,6 +182,12 @@ void load() {
             s_settings.ubershaders = false;
             logf("config", "first start on Android: aspect of the screen, 960p");
 #endif
+#ifdef R2_IOS
+            // the first start on iOS: the picture as wide as the screen
+            s_settings.fullscreen = true;
+            s_settings.aspect = Aspect::Window;
+            logf("config", "first start on iOS: aspect of the screen");
+#endif
         }
     }
     // R2_SET="fps=120;aspect=1": overrides, e.g. for test runs

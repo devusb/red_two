@@ -27,6 +27,10 @@
 #include <mach-o/dyld.h>
 #include <pthread.h>
 #include <cstdint>
+#ifdef R2_IOS
+// iOS: SDL starts the app and calls SDL_main (main below, renamed)
+#include <SDL3/SDL_main.h>
+#endif
 static long gettid() {  // (macOS has no gettid: the thread's system-wide id)
     uint64_t id = 0;
     pthread_threadid_np(nullptr, &id);
@@ -305,6 +309,10 @@ void restartGame(bool toLauncher) {
     }
     std::this_thread::sleep_for(std::chrono::seconds(10));
     quit(0);
+#elif defined(R2_IOS)
+    // iOS: an app cannot start itself again
+    logf("main", "no restart on iOS");
+    return;
 #elif !defined(_WIN32)
     // Linux: the process replaces itself (same PID: Steam, gamescope and an AppImage's mount
     // stay with it). Its other threads and windows go with the old image.
@@ -1141,6 +1149,10 @@ int main(int argc, char** argv) {
     if (const std::string u = mods::userDir(); !u.empty()) chdir(u.c_str());
     // the back button / gesture opens the menu (as F1) instead of closing the app
     SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
+#endif
+#ifdef R2_IOS
+    // relative paths (saves/, R2_* dumps) land in the app's Documents folder
+    if (const std::string u = mods::userDir(); !u.empty()) chdir(u.c_str());
 #endif
     setupLogOutput(argc, argv);
     std::string disc;

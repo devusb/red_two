@@ -1087,6 +1087,7 @@ void pageDisplay(settings::Settings& s) {
             }
         }
     } else {
+#ifndef R2_IOS
         if (confirmRow("Reset game", "RESET", "PRESS AGAIN: RESET", s_confirmReset,
                        "Start the game over from the boot screen, like the console's reset button. What the game saved to "
                        "its memory card and your save states are kept; a mission in progress is not.")) {
@@ -1099,6 +1100,7 @@ void pageDisplay(settings::Settings& s) {
             logf("menu", "back to launcher");
             resetGame(true);
         }
+#endif
     }
     if (buttonRow("Game disc", discRowText().c_str(),
                   s_launcher ? "Your Rogue Leader disc image: where it is, or choose another."
@@ -1119,7 +1121,7 @@ void pageDisplay(settings::Settings& s) {
             if (s.checkUpdates) update::check();
         }
     }
-#ifndef __ANDROID__
+#if !defined(__ANDROID__) && !defined(R2_IOS)
     {
         // Discord Rich Presence (discord.cpp): on and off at once
         const std::string help = "Your Discord profile shows that you're playing Red Two, the mission you're in and for how "
