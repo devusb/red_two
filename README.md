@@ -102,6 +102,7 @@ tools/build_ios.sh --disc "<your Rogue Leader.rvz>" \
 
 The bundle ID is the profile's App ID (`--bundle-id <id>` for a wildcard profile). `--ipa` also
 packs `build/RedTwo-ios-arm64.ipa`; `--install <device>` puts the app on a connected device.
+The app icon is `--icon <png>`, else your own `res/icon.png`, else Red Two's `res/red_two.png`.
 The recompiler runs on the Mac: one from a macOS build (`build/macos/r2recomp`) is used, else it
 is built first.
 
