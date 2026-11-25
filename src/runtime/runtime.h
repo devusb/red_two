@@ -192,6 +192,7 @@ bool launcherShowing();  // gfx/menu.cpp: the launcher is up (the game has not s
 void touchEvent(const void* sdlEvent);
 void touchDraw();
 bool touchApply(void* padStatus);
+bool touchMenuButton(float nx, float ny);  // a touch there (0-1 of the screen) is on the menu button
 void setHudAnchoring(bool on);  // gfx/menu.cpp: widescreen HUD pieces at the screen edges (in flight)
 void noteWidenedAspect(float aspect);  // gfx/menu.cpp: a projection aspect a camera was widened to
 void buttonIconsUpdate();  // gfx/button_icons.cpp: Xbox / PlayStation button prompts per the setting, controller and bindings

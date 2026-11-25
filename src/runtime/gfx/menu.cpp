@@ -2970,6 +2970,11 @@ void menuEvent(const void* p) {
         static bool down = false;
         ImGuiIO& io = ImGui::GetIO();
         const SDL_TouchFingerEvent& t = e.tfinger;
+        if (e.type == SDL_EVENT_FINGER_DOWN && !down && !s_launcher && touchMenuButton(t.x, t.y)) {
+            logf("menu", "touch: close");
+            setOpen(false);
+            return;
+        }
         if (e.type == SDL_EVENT_FINGER_DOWN && !down) {
             down = true;
             finger = t.fingerID;
