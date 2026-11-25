@@ -89,6 +89,9 @@ if [ -n "$profile" ]; then
         exit 1
     fi
 fi
+if [ -z "$bundle_id" ] && [ -f "$build/CMakeCache.txt" ]; then
+    bundle_id="$(sed -n 's/^R2_IOS_BUNDLE_ID:STRING=//p' "$build/CMakeCache.txt")"
+fi
 [ -z "$bundle_id" ] && bundle_id="io.github.gminustwo.redtwo"
 if [ -f "$build/CMakeCache.txt" ] && [ "$(sed -n 's/^R2_IOS_BUNDLE_ID:STRING=//p' "$build/CMakeCache.txt")" != "$bundle_id" ]; then
     configure=1
