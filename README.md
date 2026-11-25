@@ -89,6 +89,27 @@ built it. A copy downloaded or AirDropped to another Mac is quarantined: open it
 choose Open Anyway in System Settings > Privacy & Security (or run
 `xattr -dr com.apple.quarantine "Red Two.app"`).
 
+## Building (iOS)
+
+Requirements: a Mac with Xcode (the iOS SDK), CMake 3.25+ and Ninja, a signing identity, and a
+provisioning profile for your device whose App ID has the Extended Virtual Addressing capability.
+iOS 16 or later, arm64 devices; a controller is needed.
+
+```bash
+tools/build_ios.sh --disc "<your Rogue Leader.rvz>" \
+    --profile <app.mobileprovision> --identity "Apple Development: <name> (<id>)"   # -> build/ios/Red Two.app
+```
+
+The bundle ID is the profile's App ID (`--bundle-id <id>` for a wildcard profile). `--ipa` also
+packs `build/RedTwo-ios-arm64.ipa`; `--install <device>` puts the app on a connected device.
+The recompiler runs on the Mac: one from a macOS build (`build/macos/r2recomp`) is used, else it
+is built first.
+
+Settings, saves, states and logs live in the app's Documents folder, which the Files app shows
+under On My iPhone > Red Two (and Finder with the device connected): copy your disc image there.
+There is no Reset game, Back to launcher, in-app update, Discord presence or RetroAchievements
+on iOS, and a save state loads only into the session that made it.
+
 ### Playing
 
 - **Launcher**: Red Two opens on its settings (the same pages as the in-game menu) before the

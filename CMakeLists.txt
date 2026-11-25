@@ -57,7 +57,7 @@ set_property(GLOBAL APPEND PROPERTY JOB_POOLS r2gen=${R2_GEN_JOBS})
 if(ANDROID)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
-set(R2_HOST_RECOMP "" CACHE FILEPATH "a recompiler built for the build machine (cross builds: Android)")
+set(R2_HOST_RECOMP "" CACHE FILEPATH "a recompiler built for the build machine (cross builds: Android, iOS)")
 
 # --- recompiler -------------------------------------------------------------------------
 add_executable(r2recomp
@@ -72,6 +72,7 @@ target_link_libraries(r2recomp PRIVATE zstd::libzstd)
 # disc_compare <a> <b>: check the disc image reader (not built by default)
 add_executable(disc_compare EXCLUDE_FROM_ALL src/common/disc_compare.cpp src/common/disc_image.cpp)
 target_link_libraries(disc_compare PRIVATE zstd::libzstd)
+set_target_properties(r2recomp disc_compare PROPERTIES MACOSX_BUNDLE FALSE)
 
 # --- generated code ---------------------------------------------------------------------
 set(GEN_DIR "${CMAKE_BINARY_DIR}/gen")
@@ -253,6 +254,20 @@ elseif(ANDROID)
     target_compile_options(red_two PRIVATE -fno-strict-aliasing -fno-stack-protector)
     target_link_options(red_two PRIVATE -Wl,-z,max-page-size=16384 -Wl,--no-undefined)
     target_link_libraries(red_two PRIVATE android log dl)
+elseif(IOS)
+    # iOS: as macOS below. Built as Red Two.app and signed by tools/build_ios.sh.
+    set(R2_IOS_BUNDLE_ID "io.github.gminustwo.redtwo" CACHE STRING "bundle identifier of the iOS app")
+    target_compile_definitions(red_two PRIVATE R2_IOS=1)
+    target_compile_options(red_two PRIVATE -fno-strict-aliasing -fno-stack-protector)
+    target_link_options(red_two PRIVATE -Wl,-stack_size,0x1000000)
+    set_target_properties(red_two PROPERTIES
+        MACOSX_BUNDLE TRUE
+        OUTPUT_NAME "Red Two"
+        MACOSX_BUNDLE_BUNDLE_NAME "Red Two"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "${R2_IOS_BUNDLE_ID}"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${R2_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${R2_VERSION}"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/res/Info-iOS.plist.in")
 elseif(APPLE)
     # macOS: position-independent (the arm64 loader requires it; save states then load only
     # within a session, as on Android), no stack protector (as the generated code), a 16 MiB
